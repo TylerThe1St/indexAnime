@@ -1,90 +1,31 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AniPlayer</title>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .container {
-      width: 100%;
-      max-width: 800px;
-      text-align: center;
-    }
-    h2 {
-      margin: 10px 0;
-      font-size: 1.2em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    video {
-      width: 100%;
-      max-height: 80vh;
-      border-radius: 8px;
-    }
-    .loading {
-      position: absolute;
-      top: 50%;
-      font-size: 1.5em;
-      color: #aaa;
-    }
+    body { margin: 0; background: #000; }
+    video { width: 100vw; height: 100vh; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2 id="title">Загрузка...</h2>
-    <video id="video" controls></video>
-  </div>
-
+  <video id="video" controls autoplay></video>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const src = urlParams.get('src');
-    const title = urlParams.get('title') || 'Аниме';
     const poster = urlParams.get('poster');
 
-    document.getElementById('title').textContent = title;
-
     const video = document.getElementById('video');
-    if (poster) {
-      video.poster = poster;
-    }
+    if (poster) video.poster = poster;
 
-    if (!src) {
-      alert('Ссылка на видео не указана');
-      video.innerHTML = 'Ошибка: нет ссылки';
-      document.getElementById('title').textContent = 'Ошибка';
-      return;
-    }
-
-    if (Hls.isSupported()) {
+    if (Hls.isSupported() && src) {
       const hls = new Hls();
       hls.loadSource(src);
       hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.play().catch(e => console.log('Автовоспроизведение заблокировано'));
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (src && video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = src;
-      video.addEventListener('loadedmetadata', () => {
-        video.play().catch(e => console.log('Автовоспроизведение заблокировано'));
-      });
     } else {
-      document.getElementById('title').textContent = 'Ошибка: HLS не поддерживается';
-      video.innerHTML = 'Ваш браузер не поддерживает воспроизведение .m3u8';
+      video.innerHTML = 'HLS не поддерживается';
     }
   </script>
 </body>
